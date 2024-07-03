@@ -1,7 +1,7 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import * as Yup from "yup";
-import EmailIcon from "../icons/EmailIcon";
-import PasswordIcon from "../icons/PasswordIcon";
+import { login } from "../api/apiAuth";
+import useFetch from "../hooks/useFetch";
 import ErrorMessage from "./ErrorMessage";
 import LoadingSpinner from "./LoadingSpinner";
 const Login = () => {
@@ -15,6 +15,11 @@ const Login = () => {
       [name]: value,
     }));
   };
+
+  const { data, loading, error, fn: fnLogin } = useFetch(login, formData);
+
+  useEffect(() => {}, [data, error]);
+
   const handleLogin = async () => {
     setErrors([]);
     try {
@@ -27,6 +32,7 @@ const Login = () => {
           .required("Password is Required"),
       });
       await schema.validate(formData, { abortEarly: false });
+      await fnLogin();
     } catch (error) {
       const newErrors = {};
       error?.inner?.forEach(
@@ -37,13 +43,14 @@ const Login = () => {
       setErrors(newErrors);
     }
   };
+
   return (
     <>
       <div className="card bg-base-100">
         <div className="card-body">
           <h2 className="card-title">Login</h2>
           <p>to your account if you have one</p>
-          <ErrorMessage message="test" />
+          {error && <ErrorMessage message={error?.message} />}
           <div className="card-actions justify-start">
             <label className="form-control w-full">
               <input
@@ -79,7 +86,7 @@ const Login = () => {
               className="btn btn-primary btn-wide text-lg sm:text-xl"
               onClick={handleLogin}
             >
-              {true ? <LoadingSpinner /> : "Login"}
+              {loading ? <LoadingSpinner /> : "Login"}
             </button>
           </div>
         </div>
