@@ -1,4 +1,5 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import UrlProvider from "./Context";
 import AppLayout from "./layout/AppLayout";
 import AuthPage from "./pages/AuthPage";
 import DashBoardPage from "./pages/DashBoardPage";
@@ -36,7 +37,9 @@ function App() {
   ]);
   return (
     <>
-      <RouterProvider router={router} />
+      <UrlProvider>
+        <RouterProvider router={router} />
+      </UrlProvider>
     </>
   );
 }

@@ -1,5 +1,8 @@
 import { ChangeEvent, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { useSearchParams } from "react-router-dom";
 import * as Yup from "yup";
+import { UrlState } from "../Context";
 import { login } from "../api/apiAuth";
 import useFetch from "../hooks/useFetch";
 import ErrorMessage from "./ErrorMessage";
@@ -7,6 +10,10 @@ import LoadingSpinner from "./LoadingSpinner";
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState([]);
+
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const longLink = searchParams.get("createNew");
 
   const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -17,8 +24,15 @@ const Login = () => {
   };
 
   const { data, loading, error, fn: fnLogin } = useFetch(login, formData);
+  const { fetchUser } = UrlState();
 
-  useEffect(() => {}, [data, error]);
+  useEffect(() => {
+    if (error === null && data) {
+      if (longLink) navigate(`/dashboard?createNew=${longLink}`);
+      else navigate("/dashboard");
+      fetchUser();
+    }
+  }, [data, error, longLink, navigate]);
 
   const handleLogin = async () => {
     setErrors([]);
